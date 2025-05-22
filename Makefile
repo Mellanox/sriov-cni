@@ -1,3 +1,5 @@
+include make/license.mk
+
 #
 # Credit:
 #   This makefile was adapted from: https://github.com/vincentbernat/hellogopher/blob/feature/glide/Makefile
