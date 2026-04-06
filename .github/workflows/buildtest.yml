@@ -52,6 +52,20 @@ jobs:
           name: test-integration- ${{ matrix.goarch }}
           path: ./test/integration/tmp/
 
+  test:
+    name: test
+    runs-on: ubuntu-24.04
+    needs: build-test
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: 1.25.x
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v6
+      - name: run unit-test
+        run: sudo make test-race
+
   coverage:
     runs-on: ubuntu-24.04
     needs: build-test

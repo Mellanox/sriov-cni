@@ -18,16 +18,14 @@ RUN apk add --no-cache --virtual build-dependencies build-base=~0.5 && \
 FROM ${BASE_IMAGE_GO_DISTROLESS_DEV:-nvcr.io/nvidia/distroless/go:v3.2.1-dev}
 
 USER 0:0
-SHELL ["/busybox/sh", "-c"]
-RUN ln -s /busybox/sh /bin/sh
 
 COPY --from=builder /usr/src/sriov-cni/build/sriov /usr/bin/
+COPY --from=builder /usr/src/sriov-cni/build/entrypoint /entrypoint
 WORKDIR /
 
 LABEL io.k8s.display-name="SR-IOV CNI"
 
-COPY ./images/entrypoint.sh /
 # Copy the source code to the image
 COPY . /src
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint"]
