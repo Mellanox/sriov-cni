@@ -52,7 +52,7 @@ func getEnvArgs(envArgsString string) (*envArgs, error) {
 	return nil, nil
 }
 
-func CmdAdd(args *skel.CmdArgs) error {
+func CmdAdd(args *skel.CmdArgs) (returnErr error) {
 	if err := config.SetLogging(args.StdinData, args.ContainerID, args.Netns, args.IfName); err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func CmdAdd(args *skel.CmdArgs) error {
 		return fmt.Errorf("failed to get original vf information: %v", err)
 	}
 	defer func() {
-		if err != nil {
+		if returnErr != nil {
 			err := netns.Do(func(_ ns.NetNS) error {
 				_, err := netlink.LinkByName(args.IfName)
 				return err
@@ -146,7 +146,7 @@ func CmdAdd(args *skel.CmdArgs) error {
 		}
 
 		defer func() {
-			if err != nil {
+			if returnErr != nil {
 				_ = ipam.ExecDel(netConf.IPAM.Type, args.StdinData)
 			}
 		}()
@@ -308,12 +308,14 @@ func CmdDel(args *skel.CmdArgs) error {
 			// if provided path does not exist (e.x. when node was restarted)
 			// plugin should silently return with success after releasing
 			// IPAM resources
-			_, ok := err.(ns.NSPathNotExistErr)
-			if ok {
-				logging.Debug("Exiting as the network namespace does not exists anymore",
+			_, notExist := err.(ns.NSPathNotExistErr)
+			_, notNS := err.(ns.NSPathNotNSErr)
+			if notExist || notNS {
+				logging.Debug("Exiting as the network namespace is not available",
 					"func", "cmdDel",
 					"netConf.DeviceID", netConf.DeviceID,
-					"args.Netns", args.Netns)
+					"args.Netns", args.Netns,
+					"reason", err.Error())
 				return nil
 			}
 
