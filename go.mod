@@ -10,7 +10,7 @@ require (
 	github.com/onsi/gomega v1.44.0
 	github.com/stretchr/testify v1.12.1
 	github.com/vishvananda/netlink v1.3.2-0.20260629151558-4e35dc940f49
-	golang.org/x/net v0.59.0
+	golang.org/x/net v0.60.0
 	golang.org/x/sys v0.48.0
 )
 
